@@ -1,7 +1,7 @@
 # GitHub Actions `workflow_dispatch` Input Types
 
 A hands-on reference repo for all **5 input types** available in GitHub Actions
-`workflow_dispatch` triggers. Each workflow is self-contained — fork the repo,
+`workflow_dispatch` triggers. Each workflow is self-contained - fork the repo,
 trigger a workflow from the Actions tab, and read the output to see exactly how
 each input type behaves.
 
@@ -24,7 +24,7 @@ each input type behaves.
 `workflow_dispatch` is a GitHub Actions trigger that lets you run a workflow
 manually from the Actions tab (or via the GitHub API / `gh` CLI). You can
 attach **typed input fields** to the trigger so the person running it can
-pass parameters — similar to function arguments for your pipeline.
+pass parameters - similar to function arguments for your pipeline.
 
 ```yaml
 on:
@@ -47,14 +47,14 @@ demonstrating each one.
 | Type | UI widget | Value in shell | Best for |
 |---|---|---|---|
 | `string` | Text field | Any text | Names, tags, messages |
-| `number` | Number field | String — validate yourself | Counts, timeouts, ports |
+| `number` | Number field | String - validate yourself | Counts, timeouts, ports |
 | `boolean` | Checkbox | `"true"` or `"false"` | Dry-run, debug flags |
 | `choice` | Dropdown | One of the listed options | Log levels, strategies |
 | `environment` | Dropdown | A GitHub Environment name | Deployment targets |
 
 ---
 
-## 01 — String Input
+## 01 - String Input
 
 **File:** `.github/workflows/01-string-input.yml` · `scripts/string-input.sh`
 
@@ -88,24 +88,24 @@ Go to **Actions → 01 - String Input Demo → Run workflow** and experiment wit
 
 ---
 
-## 02 — Number Input
+## 02 - Number Input
 
 **File:** `.github/workflows/02-number-input.yml` · `scripts/number-input.sh`
 
 A `number` input renders as a numeric text field. GitHub validates that the
-value is a number before the workflow runs — but it still arrives in your
+value is a number before the workflow runs - but it still arrives in your
 shell script as a **string**. Always validate and cast it yourself.
 
 ```yaml
 inputs:
   replica_count:
-    description: "Number of replicas (1–10)"
+    description: "Number of replicas (1-10)"
     type: number
     required: true
     default: 2
 
   timeout_seconds:
-    description: "Deployment timeout in seconds (30–600)"
+    description: "Deployment timeout in seconds (30-600)"
     type: number
     required: false
     default: 120
@@ -114,7 +114,7 @@ inputs:
 **What the script demonstrates:**
 - Re-validating that the value is numeric using `=~ ^[0-9]+$`
 - Enforcing min/max limits that the UI does not enforce
-- Integer arithmetic with `(( ))` — e.g. converting seconds to minutes
+- Integer arithmetic with `(( ))` - e.g. converting seconds to minutes
 - Branching logic based on numeric ranges
 
 **Try it:**
@@ -125,7 +125,7 @@ Go to **Actions → 02 - Number Input Demo → Run workflow** and experiment wit
 
 ---
 
-## 03 — Boolean Input
+## 03 - Boolean Input
 
 **File:** `.github/workflows/03-boolean-input.yml` · `scripts/boolean-input.sh`
 
@@ -162,19 +162,19 @@ inputs:
 
 **Try it:**
 Go to **Actions → 03 - Boolean Input Demo → Run workflow** and experiment with:
-- Check `dry_run` only — see simulated steps
-- Check `enable_debug` only — see bash trace output (`set -x`)
-- Check both — see verbose dry-run simulation
+- Check `dry_run` only - see simulated steps
+- Check `enable_debug` only - see bash trace output (`set -x`)
+- Check both - see verbose dry-run simulation
 
 ---
 
-## 04 — Choice Input
+## 04 - Choice Input
 
 **File:** `.github/workflows/04-choice-input.yml` · `scripts/choice-input.sh`
 
 A `choice` input renders as a **dropdown** populated with options you define
 directly in the YAML. GitHub validates that the submitted value is one of the
-listed options — no free text is accepted via the UI.
+listed options - no free text is accepted via the UI.
 
 ```yaml
 inputs:
@@ -214,13 +214,13 @@ Go to **Actions → 04 - Choice Input Demo → Run workflow** and experiment wit
 
 ---
 
-## 05 — Environment Input
+## 05 - Environment Input
 
 **File:** `.github/workflows/05-environment-input.yml` · `scripts/environment-input.sh`
 
 A `environment` input renders as a **dropdown populated from your repo's
 configured GitHub Environments** (Settings → Environments). Unlike `choice`,
-the options are not hardcoded in the YAML — they come from your repo settings.
+the options are not hardcoded in the YAML - they come from your repo settings.
 
 ```yaml
 inputs:
@@ -234,7 +234,7 @@ jobs:
     environment: ${{ inputs.target_environment }}  # applies protection rules
 ```
 
-Setting `environment:` on the job is what makes this type powerful — it
+Setting `environment:` on the job is what makes this type powerful - it
 automatically applies the selected environment's **protection rules** (required
 reviewers, wait timers), **secrets**, and **variables** before any step runs.
 
@@ -251,8 +251,8 @@ the dropdown will be empty.
 1. Go to your repo → **Settings → Environments**
 2. Create three environments: `development`, `staging`, `production`
 3. Optionally add protection rules to `staging` and `production`:
-   - **Required reviewers** — someone must approve before the job runs
-   - **Wait timer** — adds a delay before the job starts
+   - **Required reviewers** - someone must approve before the job runs
+   - **Wait timer** - adds a delay before the job starts
 
 **Try it:**
 Go to **Actions → 05 - Environment Input Demo → Run workflow**, select an
@@ -285,13 +285,13 @@ gate appear before the job starts.
 
 ## Best Practices Shown in This Repo
 
-- **Pass inputs via `env:`, not inline in `run:`** — prevents shell injection
-- **Always re-validate in the script** — API/CLI callers can bypass UI validation
-- **Boolean inputs are strings in shell** — always compare with `== "true"`
-- **`case` with a `*)` catch-all** — defensive handling for unexpected values
-- **`set -euo pipefail`** on every script — fail fast, no silent errors
-- **`set -x` only when needed** — activate bash trace via a debug boolean flag
-- **Environment input on the job** — lets GitHub inject scoped secrets/variables
+- **Pass inputs via `env:`, not inline in `run:`** - prevents shell injection
+- **Always re-validate in the script** - API/CLI callers can bypass UI validation
+- **Boolean inputs are strings in shell** - always compare with `== "true"`
+- **`case` with a `*)` catch-all** - defensive handling for unexpected values
+- **`set -euo pipefail`** on every script - fail fast, no silent errors
+- **`set -x` only when needed** - activate bash trace via a debug boolean flag
+- **Environment input on the job** - lets GitHub inject scoped secrets/variables
 
 ---
 
