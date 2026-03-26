@@ -1,0 +1,56 @@
+# =============================================================================
+# WORKFLOW: Environment Input Demo
+# =============================================================================
+# The `environment` type renders a dropdown populated with your repo's
+# configured GitHub Environments (Settings → Environments).
+#
+# Key characteristics:
+#   - Unlike `choice`, the options are NOT hardcoded in the YAML — they come
+#     from the environments you have created in your repo settings
+#   - Selecting an environment applies its protection rules automatically
+#     (required reviewers, wait timers, deployment branch restrictions)
+#   - The selected environment name is accessible via inputs.<name>
+#   - If no environments are configured, the dropdown will be empty
+#
+# ⚠️  SETUP REQUIRED before running this workflow:
+#   1. Go to your repo → Settings → Environments
+#   2. Create three environments: development, staging, production
+#   3. Optionally add protection rules (required reviewers, etc.) to
+#      staging and production to see the approval gate in action
+#
+# How to run:
+#   Go to Actions → "05 - Environment Input Demo" → Run workflow
+#   Select an environment from the dropdown and click "Run workflow"
+# =============================================================================
+
+name: "05 - Environment Input Demo"
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      target_environment:
+        description: "Target environment to deploy to"
+        type: environment             # Populated from repo Settings → Environments
+        required: true
+
+jobs:
+  environment-input-demo:
+    name: "Deploy to ${{ inputs.target_environment }}"
+    runs-on: ubuntu-latest
+
+    # Applying the selected environment here is what activates its
+    # protection rules (approvals, wait timers, secrets, variables).
+    environment: ${{ inputs.target_environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make script executable
+        run: chmod +x scripts/environment-input.sh
+
+      - name: Run environment input demo
+        env:
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+        run: ./scripts/environment-input.sh

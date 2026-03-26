@@ -1,0 +1,62 @@
+# =============================================================================
+# WORKFLOW: Choice Input Demo
+# =============================================================================
+# The `choice` type renders as a dropdown in the GitHub Actions UI.
+#
+# Key characteristics:
+#   - User can only select from the predefined list — no free text
+#   - GitHub validates the value before running the workflow
+#   - The first item in `options` is used as the default if none is specified,
+#     OR you can explicitly set a `default` (must match one of the options)
+#   - Arrives as a plain string in shell — use a case statement
+#
+# How to run:
+#   Go to Actions → "04 - Choice Input Demo" → Run workflow
+#   Pick options from the dropdowns and click "Run workflow"
+# =============================================================================
+
+name: "04 - Choice Input Demo"
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      log_level:
+        description: "Log verbosity level for this run"
+        type: choice
+        required: true
+        default: "info"               # Must be one of the options below
+        options:
+          - debug
+          - info
+          - warn
+          - error
+
+      deployment_strategy:
+        description: "Deployment rollout strategy"
+        type: choice
+        required: true
+        default: "rolling"
+        options:
+          - rolling                   # Gradual replace — zero downtime
+          - blue-green                # Full parallel environment swap
+          - canary                    # Partial traffic shift first
+          - recreate                  # Stop all, then start new (causes downtime)
+
+jobs:
+  choice-input-demo:
+    name: "Choice Input Demo"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make script executable
+        run: chmod +x scripts/choice-input.sh
+
+      - name: Run choice input demo
+        env:
+          LOG_LEVEL: ${{ inputs.log_level }}
+          DEPLOYMENT_STRATEGY: ${{ inputs.deployment_strategy }}
+        run: ./scripts/choice-input.sh

@@ -1,0 +1,59 @@
+# =============================================================================
+# WORKFLOW: String Input Demo
+# =============================================================================
+# The `string` type accepts any free-form text from the user.
+#
+# Key characteristics:
+#   - Can be marked required or optional
+#   - Supports a default value
+#   - No built-in format validation (validate in your script or steps)
+#   - Rendered as a text field in the GitHub Actions UI
+#
+# How to run:
+#   Go to Actions → "01 - String Input Demo" → Run workflow
+#   Fill in the fields and click "Run workflow"
+# =============================================================================
+
+name: "01 - String Input Demo"
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      app_name:
+        description: "Application name to deploy (e.g. my-api)"
+        type: string
+        required: true                  # User MUST provide this — no default
+
+      version_tag:
+        description: "Version tag to deploy (e.g. v1.2.3 or latest)"
+        type: string
+        required: false
+        default: "latest"              # Falls back to this if left blank
+
+      deploy_message:
+        description: "Optional message to attach to this deployment"
+        type: string
+        required: false
+        default: ""                    # Empty string = no message provided
+
+jobs:
+  string-input-demo:
+    name: "String Input Demo"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make script executable
+        run: chmod +x scripts/string-input.sh
+
+      # Pass inputs as environment variables — never inline them directly
+      # into `run:` blocks to avoid shell injection risks.
+      - name: Run string input demo
+        env:
+          APP_NAME: ${{ inputs.app_name }}
+          VERSION_TAG: ${{ inputs.version_tag }}
+          DEPLOY_MESSAGE: ${{ inputs.deploy_message }}
+        run: ./scripts/string-input.sh

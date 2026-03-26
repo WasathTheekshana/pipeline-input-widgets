@@ -1,0 +1,54 @@
+# =============================================================================
+# WORKFLOW: Number Input Demo
+# =============================================================================
+# The `number` type accepts numeric values from the user.
+#
+# Key characteristics:
+#   - Rendered as a numeric input field in the GitHub Actions UI
+#   - GitHub validates that the value is a number before running
+#   - Still arrives as a STRING in shell — always cast/validate in your script
+#   - Supports default values
+#   - Does NOT enforce min/max — do that yourself in the script
+#
+# How to run:
+#   Go to Actions → "02 - Number Input Demo" → Run workflow
+#   Adjust the numbers and click "Run workflow"
+# =============================================================================
+
+name: "02 - Number Input Demo"
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      replica_count:
+        description: "Number of replicas to deploy (allowed: 1–10)"
+        type: number
+        required: true
+        default: 2
+
+      timeout_seconds:
+        description: "Deployment timeout in seconds (allowed: 30–600)"
+        type: number
+        required: false
+        default: 120
+
+jobs:
+  number-input-demo:
+    name: "Number Input Demo"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make script executable
+        run: chmod +x scripts/number-input.sh
+
+      # Even though the UI validates type=number, values arrive as strings
+      # in shell. The script handles casting and boundary validation.
+      - name: Run number input demo
+        env:
+          REPLICA_COUNT: ${{ inputs.replica_count }}
+          TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
+        run: ./scripts/number-input.sh

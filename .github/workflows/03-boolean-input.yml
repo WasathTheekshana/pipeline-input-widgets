@@ -1,0 +1,83 @@
+# =============================================================================
+# WORKFLOW: Boolean Input Demo
+# =============================================================================
+# The `boolean` type renders as a checkbox in the GitHub Actions UI.
+#
+# Key characteristics:
+#   - Rendered as a checkbox (checked = true, unchecked = false)
+#   - Arrives in shell scripts as the STRING "true" or "false" — not a
+#     real shell boolean. Always compare with == "true" / == "false"
+#   - Can be used directly in workflow `if:` expressions as a real boolean
+#   - Supports default values (true or false)
+#
+# How to run:
+#   Go to Actions → "03 - Boolean Input Demo" → Run workflow
+#   Toggle the checkboxes and click "Run workflow"
+# =============================================================================
+
+name: "03 - Boolean Input Demo"
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      dry_run:
+        description: "Dry run — simulate deployment without making real changes"
+        type: boolean
+        required: false
+        default: false
+
+      enable_debug:
+        description: "Enable verbose debug logging"
+        type: boolean
+        required: false
+        default: false
+
+      notify_on_complete:
+        description: "Send a notification when the workflow finishes"
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  boolean-input-demo:
+    name: "Boolean Input Demo"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make script executable
+        run: chmod +x scripts/boolean-input.sh
+
+      - name: Run boolean input demo
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          ENABLE_DEBUG: ${{ inputs.enable_debug }}
+          NOTIFY_ON_COMPLETE: ${{ inputs.notify_on_complete }}
+        run: ./scripts/boolean-input.sh
+
+      # ------------------------------------------------------------------
+      # Boolean inputs can also control which STEPS run in the workflow.
+      # Use inputs.<name> directly in `if:` — it behaves as a real boolean
+      # here (unlike in shell where it is a string).
+      # ------------------------------------------------------------------
+
+      - name: "[Conditional Step] Real deployment"
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          echo "✅ DRY RUN is OFF — executing real deployment steps..."
+          echo "   (In a real pipeline: kubectl apply, helm upgrade, etc.)"
+
+      - name: "[Conditional Step] Dry run summary"
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          echo "🔍 DRY RUN is ON — no changes were applied."
+          echo "   Review the plan above before running without dry_run."
+
+      - name: "[Conditional Step] Send completion notification"
+        if: ${{ inputs.notify_on_complete == true }}
+        run: |
+          echo "🔔 Sending completion notification..."
+          echo "   (In a real pipeline: curl to Slack/Teams webhook, etc.)"
